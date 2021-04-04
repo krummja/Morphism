@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 import sys
 
-install_requires=[]
+install_requires = []
 if sys.version_info < (3, 5):
     install_requires.append('typing')
 
@@ -26,4 +26,4 @@ setup(
     tests_require=['pytest==6.2.1'],
     test_suite='tests',
     python_requires='>=3.8.5',
-)
+    )
