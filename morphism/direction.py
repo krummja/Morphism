@@ -32,12 +32,10 @@ class Direction(Enum):
     @property
     def opposite(self) -> Direction:
         """Return the opposite of a direction."""
-        # pylint: disable=unsubscriptable-object
         return Direction((-self.value[0], -self.value[1]))
 
     def is_adjacent_to(self, other) -> bool:
         """Check if one position is adjacent to the this position."""
-        # pylint: disable=unsubscriptable-object
         return ((self.value[0] == other.value[0] and
                 abs(self.value[1] - other.value[1]) <= 1) or
                 (self.value[1] == other.value[1] and

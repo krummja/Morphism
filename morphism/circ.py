@@ -1,23 +1,31 @@
 from __future__ import annotations
 from typing import Type, Union
 
+from numbers import Real
 import math
 
 import numpy as np
 
+from .shape import Shape
 from .point import Point
 from .size import Size
 from .span import Span
 
 
-class Circ(tuple):
+class Circ(Shape):
     """Representation of a circle."""
 
-    def __new__(cls: Type[Circ], origin, radius) -> Circ:
+    def __new__(cls: Type[Circ], origin: Point, radius: Size) -> Circ:
+        cls._origin = origin
+        cls._radius = radius
         return super().__new__(cls, (origin, radius))
 
+    def __contains__(self, other: object) -> bool:
+        # TODO Implement
+        pass
+
     @classmethod
-    def from_edges(cls, *, top: int, left: int, radius: int) -> Circ:
+    def from_edges(cls, *, top: Real, left: Real, radius: Real) -> Circ:
         return Circ(Point(left+radius, top+radius), Size(radius, radius))
 
     @classmethod
@@ -25,17 +33,17 @@ class Circ(tuple):
         pass
 
     @classmethod
-    def centered_at(cls, *, radius: int, center: Point) -> Circ:
+    def centered_at(cls, *, radius: Real, center: Point) -> Circ:
         left = center.x - radius
         top = center.y - radius
         return cls.from_edges(top=top, left=left, radius=radius)
 
     @property
-    def radius(self) -> int:
+    def radius(self) -> Real:
         return self[1].width
 
     @property
-    def diameter(self) -> int:
+    def diameter(self) -> Real:
         return self[1].width * 2
 
     @property
@@ -75,6 +83,10 @@ class Circ(tuple):
         dist_from_center = np.sqrt((x - xc)**2 + (y - yc)**2)
         return dist_from_center <= self.radius
 
+    @property
+    def floored(self):
+        return Circ(self._origin.floored, self._radius.floored)
+
     def distance_to(self, other: Circ) -> float:
         x, y = self.center
         other_x, other_y = other.center
@@ -93,6 +105,7 @@ class Circ(tuple):
         return type(self).from_edges(top=top, left=left, radius=radius)
 
     def shrink(self, *args):
+        # TODO Implement
         pass
 
     def intersects(self, other: Union[Circ, Point]) -> bool:
@@ -110,6 +123,3 @@ class Circ(tuple):
             if dist_square >= self.radius:
                 return False
         return True
-
-    def __contains__(self, other: object) -> bool:
-        pass

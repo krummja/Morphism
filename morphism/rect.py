@@ -1,36 +1,41 @@
 from __future__ import annotations
 from typing import *
 
+from numbers import Real
 import numpy as np
 from numpy.lib.index_tricks import IndexExpression
 
+from .shape import Shape
 from .direction import Direction
 from .point import Point
 from .size import Size
 from .span import Span
 
 
-class Rect:
+class Rect(Shape):
     """Representation of a Rectangle."""
 
-    def __init__(self, origin: Optional[Point] = None, size: Optional[Size] = None):
-        self.origin: Point = origin or Point()
-        self.size: Size = size or Size()
+    def __new__(cls, origin: Point, size: Size):
+        cls.origin = origin
+        cls.size = size
+        return super().__new__(cls, (origin, size))
+
+    def __init__(self, origin: Point, size: Size) -> None:
+        self.origin = origin
+        self.size = size
 
     def __contains__(self, other: object) -> bool:
         """Check if this Rect _properly_ contains a target Rect or Point."""
         if isinstance(other, Rect):
-            return (
-                self.top < other.top and
-                self.bottom > other.bottom and
-                self.left < other.left and
-                self.right > other.right
-                )
+            return (self.top < other.top and
+                    self.bottom > other.bottom and
+                    self.left < other.left and
+                    self.right > other.right)
+
         elif isinstance(other, Point):
-            return (
-                self.left <= other.x <= self.right and
-                self.top <= other.y <= self.bottom
-                )
+            return (self.left <= other.x <= self.right and
+                    self.top <= other.y <= self.bottom)
+
         else:
             return False
 
@@ -38,7 +43,7 @@ class Rect:
         return 'Rect({!r}, {!r})'.format(self.origin, self.size)
 
     @classmethod
-    def from_edges(cls, *, top: int, bottom: int, left: int, right: int) -> Rect:
+    def from_edges(cls, *, top: Real, bottom: Real, left: Real, right: Real) -> Rect:
         """
         Create a new Rect object by defining the values of its four edges.
         """
@@ -72,23 +77,23 @@ class Rect:
         return Rect(self.origin, new_size)
 
     @property
-    def top(self) -> int:
+    def top(self) -> Real:
         return self.origin.y
 
     @property
-    def bottom(self) -> int:
-        return int(self.origin.y + self.size.height)
+    def bottom(self) -> Real:
+        return self.origin.y + self.size.height
 
     @property
-    def left(self) -> int:
+    def left(self) -> Real:
         return self.origin.x
 
     @property
-    def right(self) -> int:
+    def right(self) -> Real:
         return self.origin.x + self.size.width
 
     @property
-    def width(self) -> int:
+    def width(self) -> Real:
         return self.size.width
 
     @width.setter
@@ -246,7 +251,7 @@ class Rect:
 
     # Directional Interactions
 
-    def edge_length(self, edge: Direction) -> int:
+    def edge_length(self, edge: Direction) -> Real:
         """Use a Direction to get the length of the relevant edge."""
         if edge is Direction.up or edge is Direction.down:
             return self.width
@@ -339,15 +344,15 @@ class Rect:
             left=new_left, right=new_right,
             )
 
-    def iter_border(self) -> Generator:
+    def iter_border(self) -> Generator[Point, None, None]:
         """Return Points for every x,y in the border of the Rect as well as
         a Direction object encoding the side of the given edge.
 
         Returns diagonal Directions for the corners of the Rect."""
-        for x in range(self.left + 1, self.right):
+        for x in range(self.left + 1, int(self.right)):
             yield Point(x, self.top), Direction.up
             yield Point(x, self.bottom), Direction.down
-        for y in range(self.top + 1, self.bottom):
+        for y in range(self.top + 1, int(self.bottom)):
             yield Point(self.left, y), Direction.left
             yield Point(self.right, y), Direction.right
 
@@ -357,17 +362,17 @@ class Rect:
         yield Point(self.right, self.bottom), Direction.down_right
 
     def iter_points(self) -> Generator:
-        for x in range(self.left, self.right + 1):
-            for y in range(self.top, self.bottom + 1):
+        for x in range(int(self.left), self.right + 1):
+            for y in range(int(self.top), self.bottom + 1):
                 yield Point(x, y)
 
     def range_width(self):
         """Iterate over every x-coordinate within the width of the Rect."""
-        return range(self.left, self.right + 1)
+        return range(int(self.left), self.right + 1)
 
     def range_height(self):
         """Iterate over every y-coordinate within the height of the Rect."""
-        return range(self.top, self.bottom + 1)
+        return range(int(self.top), self.bottom + 1)
 
     def intersects(self, other: Rect) -> bool:
         """Returns True if this Rect overlaps with another at any point."""

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import Type, Generator
+from typing import *
+from numbers import Real
 import math
 
+from .shape import Shape
 from .point import Point
 
 
-class Span(tuple):
+class Span(Shape):
     """Representation of a line segment defined by Point endpoints."""
 
     def __new__(cls: Type[Span], start: Point, end: Point) -> Span:
@@ -37,12 +39,16 @@ class Span(tuple):
                              (self.end[1] - (self.start[1] + 1))**2))
 
     def __add__(self, n) -> Span:
-        if isinstance(n, int):
+        if isinstance(n, Real):
             return Span(self.start + n, self.end + n)
         return NotImplemented
 
     def __sub__(self, n) -> Span:
         return self - n
+
+    @property
+    def floored(self) -> Span:
+        return Span(self.start.floored, self.end.floored)
 
     def overlaps(self, other) -> bool:
         return self.start <= other.end and self.end >= other.start
