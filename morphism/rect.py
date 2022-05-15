@@ -20,6 +20,9 @@ class Rect(Shape):
         cls.size = size
         return super().__new__(cls, (origin, size))
 
+    def __getnewargs__(self):
+        return self.origin, self.size
+
     def __init__(self, origin: Point, size: Size) -> None:
         self.origin = origin
         self.size = size
@@ -93,8 +96,8 @@ class Rect(Shape):
         return self.origin.x + self.size.width
 
     @property
-    def width(self) -> Real:
-        return self.size.width
+    def width(self) -> int:
+        return int(self.size.width)
 
     @width.setter
     def width(self, new_value):

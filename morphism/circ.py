@@ -20,6 +20,9 @@ class Circ(Shape):
         cls._radius = radius
         return super().__new__(cls, (origin, radius))
 
+    def __getnewargs__(self):
+        return self._origin, self._radius
+
     def __contains__(self, other: object) -> bool:
         # TODO Implement
         pass
